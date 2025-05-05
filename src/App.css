@@ -1,0 +1,24 @@
+.card__footer {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card__footer button {
+  width: 50%;
+  height: 40px;
+  color: white;
+  background-color: green;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: sans-serif;
+  border-radius: 8px;
+  border: 1px solid green;
+}
+
+.card__footer span{
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
