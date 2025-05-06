@@ -14,13 +14,12 @@ import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Badge, Button } from '@mui/material';
+import { Badge } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+import Navbar from './components/Navbar';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -91,9 +90,7 @@ function App() {
       createBookDate !== ''
     ) {
       alert("Bo'sh maydonni to'ldiring");
-    } 
-    
-    else {
+    } else {
       const newData = {
         name: value1,
         author: value2,
@@ -121,9 +118,8 @@ function App() {
 
   return (
     <>
-      <Button variant='outlined' onClick={handleClickOpen}>
-        Add Book
-      </Button>
+      <Navbar handleClickOpen={handleClickOpen} />
+
       <Dialog
         open={open}
         onClose={handleClose}
