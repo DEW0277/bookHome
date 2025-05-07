@@ -6,11 +6,11 @@
 }
 
 .card__footer button {
-  width: 50%;
+  width: 40%;
   height: 40px;
   color: white;
   background-color: green;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   font-family: sans-serif;
   border-radius: 8px;
@@ -68,4 +68,40 @@
   right: 64px;
   bottom: 2px;
   border-radius: 5px !important;
+}
+
+.books_cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 20px 100px;
+}
+
+.card {
+  width: 400px;
+}
+
+input{
+  width: 90%;
+  height: 40px;
+  margin-top: 10px;
+  padding: 0 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+textarea{
+  width: 90%;
+  height: 100px;
+  margin-top: 10px;
+}
+
+
+
+@media (max-width: 768px) {
+  .books_cards {
+    justify-content: center;
+  }
 }
