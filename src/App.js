@@ -7,6 +7,8 @@ import Navbar from './components/Navbar';
 import { v4 as uuidv4 } from 'uuid';
 import ProductCard from './components/cards/Product.card';
 import { Button } from '@mui/material';
+import { db } from './Firebase/fire-config';
+import { addDoc, collection, onSnapshot } from 'firebase/firestore';
 
 function App() {
   const [value1, setValue1] = useState('');
@@ -27,13 +29,13 @@ function App() {
     setOpen(false);
   };
 
-  const [books, setBooks] = useState(
-    JSON.parse(localStorage.getItem('books'))
-      ? JSON.parse(localStorage.getItem('books'))
-      : []
-  );
+  const [books, setBooks] = useState([]);
 
-  const onInputSubmit = () => {
+  console.log(books);
+
+  const booksCollectionRef = collection(db, 'books');
+
+  const onInputSubmit = async () => {
     if (
       value1 &&
       value2 &&
@@ -55,33 +57,41 @@ function App() {
         date: createBookDate,
         id: uuidv4(),
       };
+      try {
+        await addDoc(booksCollectionRef, newData);
 
-      setBooks([...books, newData]);
+        setValue1('');
+        setValue2('');
+        setValue3('');
+        setValue4('');
+        setImageValue1('');
+        setAuthorImage('');
+        setBookDescription('');
+        setCreateBookDate('');
+      } catch (error) {
+        console.log(error);
+      }
+
       handleClose();
-
-      setValue1('');
-      setValue2('');
-      setValue3('');
-      setValue4('');
-      setImageValue1('');
-      setAuthorImage('');
-      setBookDescription('');
-      setCreateBookDate('');
     } else {
       alert("Bo'sh maydonni to'ldiring");
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem('books', JSON.stringify(books));
-  }, [books]);
+  const fetchBooks = () => {
+    onSnapshot(booksCollectionRef, (snapshot) => {
+      const booksData = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        docId: doc.id,
+      }));
 
-  const deleteBookHandler = (id) => {
-    const filteredBooks = books.filter((book) => book.id !== id);
-    localStorage.setItem('books', JSON.stringify(filteredBooks));
-    setBooks(filteredBooks);
+      setBooks(booksData);
+    });
   };
 
+  useEffect(() => {
+    fetchBooks();
+  }, []);
   return (
     <>
       <Navbar books={books} handleClickOpen={handleClickOpen} />
@@ -157,7 +167,7 @@ function App() {
       </Dialog>
       <div className='books_cards'>
         {books.map((book) => (
-          <ProductCard book={book} deleteBookHandler={deleteBookHandler} />
+          <ProductCard key={book.id} book={book} />
         ))}
       </div>
     </>
