@@ -1,10 +1,30 @@
-import { Button } from '@mui/material';
+import { Avatar, Button, Menu, MenuItem } from '@mui/material';
 import Logo from '../images/logo.png';
 import SearchIcon from '@mui/icons-material/Search';
-import { useState } from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import GoogleIcon from '@mui/icons-material/Google';
+import { auth } from '../Firebase/fire-config';
+import { deepPurple } from '@mui/material/colors';
+import { useEffect, useState } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from 'firebase/auth';
 function Navbar(props) {
   const [searchInput, setSearchInput] = useState('');
   const [books, setBooks] = useState([]);
+  const [isAuth, setIsAuth] = useState(false);
+
+  //  Register Value input
+  const [userEmail, setUserEmail] = useState('');
+  const [userPassword, setUserPassword] = useState('');
+
+  const [user, setUser] = useState(null);
+
   const resultSearch = (e) => {
     if (searchInput) {
       e.preventDefault();
@@ -17,6 +37,64 @@ function Navbar(props) {
       setSearchInput('');
     } else {
       setBooks([]);
+    }
+  };
+
+  // Menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  // Register
+  const registerUserHandler = async () => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        userEmail,
+        userPassword
+      );
+      const user = userCredential.user;
+      setIsAuth(true);
+    } catch (error) {}
+
+    handleClose();
+
+    setUserEmail('');
+    setUserPassword('');
+  };
+
+  useEffect(() => {
+    const getUser = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuth(true);
+    });
+
+    return () => getUser();
+  }, []);
+
+  // LogOut
+  const logoutUserHandler = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setIsAuth(false);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -45,9 +123,44 @@ function Navbar(props) {
               <SearchIcon />
             </Button>
           </div>
-          <Button variant={'outlined'} onClick={props.handleClickOpen}>
-            Add Book
-          </Button>
+          <div className='navbar__btns'>
+            {isAuth && user ? (
+              <div>
+                <Button variant={'text'} onClick={handleClick}>
+                  <Avatar sx={{ bgcolor: deepPurple[500] }}>OP</Avatar>
+                </Button>
+
+                <Menu
+                  id='basic-menu'
+                  anchorEl={anchorEl}
+                  open={openMenu}
+                  onClose={handleCloseMenu}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                >
+                  {user.email === 'admin@gmail.com' ? (
+                    <MenuItem onClick={handleClose}>
+                      {' '}
+                      <Button variant={'text'} onClick={props.handleClickOpen}>
+                        Add Book
+                      </Button>
+                    </MenuItem>
+                  ) : null}
+                  <MenuItem onClick={handleClose}>{user.email}</MenuItem>
+                  <MenuItem onClick={handleClose}>
+                    <Button variant={'text'} onClick={logoutUserHandler}>
+                      LogOut
+                    </Button>
+                  </MenuItem>
+                </Menu>
+              </div>
+            ) : (
+              <Button variant={'outlined'} onClick={handleClickOpen}>
+                Register
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       <div>
@@ -63,6 +176,50 @@ function Navbar(props) {
             ))
           : null}
       </div>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
+      >
+        <DialogTitle id='alert-dialog-title'>Register</DialogTitle>
+        <DialogContent style={{ width: '500px' }}>
+          <div className='book_register'>
+            <input
+              type='text'
+              value={userEmail}
+              placeholder='Enter email...'
+              onChange={(e) => setUserEmail(e.target.value)}
+            />{' '}
+            <br />
+            <input
+              type='text'
+              value={userPassword}
+              placeholder='Enter password...'
+              onChange={(e) => setUserPassword(e.target.value)}
+            />{' '}
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button variant={'contained'} onClick={registerUserHandler}>
+            Register
+          </Button>
+          <Button
+            style={{ backgroundColor: 'red', color: 'white' }}
+            onClick={handleClose}
+            autoFocus
+          >
+            Cencel
+          </Button>
+        </DialogActions>
+        <div style={{ margin: '10px' }}>
+          <Button className='google_register'>
+            <GoogleIcon className='google_icon' />
+            <span>Register with Google</span>
+          </Button>
+        </div>
+      </Dialog>
     </>
   );
 }

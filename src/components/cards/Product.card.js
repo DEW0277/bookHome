@@ -12,7 +12,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { Badge, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function ProductCard({ book }) {
+function ProductCard({ book, deleteBookHandler }) {
   return (
     <>
       <Card key={book.name} className='card'>
@@ -65,7 +65,10 @@ function ProductCard({ book }) {
           <IconButton aria-label='share'>
             <ShareIcon />
           </IconButton>
-          <IconButton aria-label='share'>
+          <IconButton
+            aria-label='delete'
+            onClick={() => deleteBookHandler(book.docId)}
+          >
             <DeleteIcon />
           </IconButton>
         </CardActions>

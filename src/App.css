@@ -83,8 +83,8 @@
   width: 400px;
 }
 
-input{
-  width: 90%;
+input {
+  width: 95%;
   height: 40px;
   margin-top: 10px;
   padding: 0 10px;
@@ -92,13 +92,30 @@ input{
   font-weight: 500;
 }
 
-textarea{
+textarea {
   width: 90%;
   height: 100px;
   margin-top: 10px;
 }
 
+.navbar__btns {
+  display: flex;
+  gap: 20px;
+}
 
+.google_register {
+  width: 100% !important;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+  background-color: rgb(255, 65, 49) !important;
+}
+
+
+.google_register .google_icon, .google_register span{
+  color: white;
+}
 
 @media (max-width: 768px) {
   .books_cards {

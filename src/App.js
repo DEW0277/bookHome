@@ -8,7 +8,13 @@ import { v4 as uuidv4 } from 'uuid';
 import ProductCard from './components/cards/Product.card';
 import { Button } from '@mui/material';
 import { db } from './Firebase/fire-config';
-import { addDoc, collection, onSnapshot } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+} from 'firebase/firestore';
 
 function App() {
   const [value1, setValue1] = useState('');
@@ -30,8 +36,6 @@ function App() {
   };
 
   const [books, setBooks] = useState([]);
-
-  console.log(books);
 
   const booksCollectionRef = collection(db, 'books');
 
@@ -92,6 +96,16 @@ function App() {
   useEffect(() => {
     fetchBooks();
   }, []);
+
+  // deleteBook
+  const deleteBookHandler = async (docId) => {
+    try {
+      await deleteDoc(doc(db, 'books', docId));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <Navbar books={books} handleClickOpen={handleClickOpen} />
@@ -167,7 +181,11 @@ function App() {
       </Dialog>
       <div className='books_cards'>
         {books.map((book) => (
-          <ProductCard key={book.id} book={book} />
+          <ProductCard
+            key={book.docId}
+            book={book}
+            deleteBookHandler={deleteBookHandler}
+          />
         ))}
       </div>
     </>
