@@ -1,3 +1,8 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
 .card__footer {
   margin-top: 20px;
   display: flex;
@@ -112,8 +117,8 @@ textarea {
   background-color: rgb(255, 65, 49) !important;
 }
 
-
-.google_register .google_icon, .google_register span{
+.google_register .google_icon,
+.google_register span {
   color: white;
 }
 
@@ -121,4 +126,12 @@ textarea {
   .books_cards {
     justify-content: center;
   }
+}
+
+
+
+
+.user_image{
+  width: 60px;
+  border-radius: 50%;
 }

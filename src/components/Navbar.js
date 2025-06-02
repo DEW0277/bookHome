@@ -11,7 +11,10 @@ import { deepPurple } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
 } from 'firebase/auth';
 function Navbar(props) {
@@ -22,6 +25,8 @@ function Navbar(props) {
   //  Register Value input
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
+  const [userName, setUserName] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const [user, setUser] = useState(null);
 
@@ -51,6 +56,7 @@ function Navbar(props) {
   };
 
   const [open, setOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -58,6 +64,7 @@ function Navbar(props) {
 
   const handleClose = () => {
     setOpen(false);
+    setLoginOpen(false);
   };
 
   // Register
@@ -66,16 +73,50 @@ function Navbar(props) {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         userEmail,
-        userPassword
+        userPassword,
+        userName
       );
       const user = userCredential.user;
       setIsAuth(true);
-    } catch (error) {}
+      setOpen(false);
+      setUserEmail('');
+      setUserName('');
+      setUserPassword('');
+    } catch (error) {
+      console.log(error);
+      setIsError(true);
+      setOpen(true);
+      setUserEmail('');
+      setUserName('');
+      setUserPassword('');
+    }
+  };
 
-    handleClose();
+  // Login
 
-    setUserEmail('');
-    setUserPassword('');
+  const loginUserHandler = async () => {
+    try {
+      const userCredantial = await signInWithEmailAndPassword(
+        auth,
+        userEmail,
+        userPassword
+      );
+      setUser(userCredantial.user);
+      handleClose();
+      setIsAuth(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const loginUserModal = () => {
+    setLoginOpen(true);
+    setOpen(false);
+  };
+
+  const registerUserModal = () => {
+    setLoginOpen(false);
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -93,6 +134,19 @@ function Navbar(props) {
       await signOut(auth);
       setUser(null);
       setIsAuth(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Google auth
+
+  const googleAuthHandler = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      handleClose();
     } catch (error) {
       console.log(error);
     }
@@ -127,7 +181,15 @@ function Navbar(props) {
             {isAuth && user ? (
               <div>
                 <Button variant={'text'} onClick={handleClick}>
-                  <Avatar sx={{ bgcolor: deepPurple[500] }}>OP</Avatar>
+                  {user.photoURL ? (
+                    <img
+                      className='user_image'
+                      src={user.photoURL}
+                      alt='user-image'
+                    />
+                  ) : (
+                    <Avatar sx={{ bgcolor: deepPurple[500] }}>OP</Avatar>
+                  )}
                 </Button>
 
                 <Menu
@@ -176,7 +238,7 @@ function Navbar(props) {
             ))
           : null}
       </div>
-
+      {/* Register */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -184,7 +246,81 @@ function Navbar(props) {
         aria-describedby='alert-dialog-description'
       >
         <DialogTitle id='alert-dialog-title'>Register</DialogTitle>
+
         <DialogContent style={{ width: '500px' }}>
+          <p>
+            Agar accountingiz bo'lsa{' '}
+            <Button variant={'text'} onClick={loginUserModal}>
+              Login
+            </Button>
+          </p>
+          <div className='book_register'>
+            <input
+              type='text'
+              value={userName}
+              placeholder='Enter full name...'
+              onChange={(e) => setUserName(e.target.value)}
+            />{' '}
+            <br />
+            <input
+              type='text'
+              value={userEmail}
+              placeholder='Enter email...'
+              onChange={(e) => setUserEmail(e.target.value)}
+            />{' '}
+            <br />
+            <input
+              type='text'
+              value={userPassword}
+              placeholder='Enter password...'
+              onChange={(e) => setUserPassword(e.target.value)}
+            />{' '}
+          </div>
+          {isError ? (
+            <span>
+              Siz bu email orqali oldin ro'yxatdan o'tgansiz.{' '}
+              <Button onClick={loginUserModal} variant={'text'}>
+                Login
+              </Button>{' '}
+              qiling.
+            </span>
+          ) : null}
+        </DialogContent>
+        <DialogActions>
+          <Button variant={'contained'} onClick={registerUserHandler}>
+            Register
+          </Button>
+          <Button
+            style={{ backgroundColor: 'red', color: 'white' }}
+            onClick={handleClose}
+            autoFocus
+          >
+            Cencel
+          </Button>
+        </DialogActions>
+        <div style={{ margin: '10px' }}>
+          <Button className='google_register' onClick={googleAuthHandler}>
+            <GoogleIcon className='google_icon' />
+            <span>Register with Google</span>
+          </Button>
+        </div>
+      </Dialog>
+      {/* Login  */}
+      <Dialog
+        open={loginOpen}
+        onClose={handleClose}
+        aria-labelledby='alert-dialog-title'
+        aria-describedby='alert-dialog-description'
+      >
+        <DialogTitle id='alert-dialog-title'>Login</DialogTitle>
+
+        <DialogContent style={{ width: '500px' }}>
+          <p>
+            Agar accountingiz bo'lsa{' '}
+            <Button variant={'text'} onClick={registerUserModal}>
+              Register
+            </Button>
+          </p>
           <div className='book_register'>
             <input
               type='text'
@@ -202,8 +338,8 @@ function Navbar(props) {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button variant={'contained'} onClick={registerUserHandler}>
-            Register
+          <Button variant={'contained'} onClick={loginUserHandler}>
+            Login
           </Button>
           <Button
             style={{ backgroundColor: 'red', color: 'white' }}
@@ -214,9 +350,9 @@ function Navbar(props) {
           </Button>
         </DialogActions>
         <div style={{ margin: '10px' }}>
-          <Button className='google_register'>
+          <Button className='google_register' onClick={googleAuthHandler}>
             <GoogleIcon className='google_icon' />
-            <span>Register with Google</span>
+            <span>Login with Google</span>
           </Button>
         </div>
       </Dialog>
